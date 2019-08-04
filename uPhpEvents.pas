@@ -785,12 +785,12 @@ begin
   if Obj <> nil then
     with GetEventController(Obj, TSRMLS_DC) do
     begin
-      ZVAL_FALSE(return_value);
+      ZVALVAL(return_value,FALSE);
 
       if (EventSet(Obj, Z_STRVAL(param[1]^))) then
       begin
         AddEvent(Z_STRVAL(param[1]^), param[2]^);
-        ZVAL_TRUE(return_value);
+        ZVALVAL(return_value,TRUE);
       end;
 
     end;
@@ -814,7 +814,7 @@ begin
 
     with GetEventController(Obj, TSRMLS_DC) do
     begin
-      ZVAL_FALSE(return_value);
+      ZVALVAL(return_value,FALSE);
       {$IFDEF PHP7}
       if param[2]^^.u1.v._type = IS_NULL then
       {$ELSE}
@@ -824,7 +824,7 @@ begin
         if EventExists(Obj, Z_STRVAL(param[1]^)) then
         begin
           ClearEvent(Z_STRVAL(param[1]^));
-          ZVAL_TRUE(return_value);
+          ZVALVAL(return_value,TRUE);
         end;
       end
       else
@@ -833,7 +833,7 @@ begin
         if EventSet(Obj, Z_STRVAL(param[1]^)) then
         begin
           SetEvent(Z_STRVAL(param[1]^), param[2]^);
-          ZVAL_TRUE(return_value);
+          ZVALVAL(return_value,TRUE);
         end;
       end;
     end;
@@ -858,11 +858,11 @@ begin
 
     with GetEventController(Obj, TSRMLS_DC) do
     begin
-      ZVAL_FALSE(return_value);
+      ZVALVAL(return_value,FALSE);
 
       r := GetFirstEvent(Z_STRVAL(param[1]^));
       if r = nil then
-        ZVAL_NULL(return_value)
+        ZVALVAL(return_value)
       else
         zval_copy(return_value, r);
     end;
@@ -1481,7 +1481,7 @@ begin
     Self.Args[0] := ALLOC_ZVAL;
     INIT_PZVAL(Self.Args[0]);
   end;
-  ZVAL_LONG(Self.Args[0], integer(This));
+  ZVALVAL(Self.Args[0], integer(This));
 {$ENDIF}
   for i := 1 to Cnt do
   begin
@@ -1500,7 +1500,7 @@ begin
 
     case Args[i - 1].vtype of
       vtInteger:
-        ZVAL_LONG({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF}, Args[i - 1].VInteger);
+        ZVALVAL({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF}, Args[i - 1].VInteger);
       vtObject:
       begin
       {$IFDEF VS_EDITOR}
@@ -1510,18 +1510,18 @@ begin
          ZVAL_ARRAY({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF}, TUnicodeStrings(TPersistent(Args[i - 1].VPointer)).Text.Split([#10,#13]) );
         end else
       {$ENDIF}
-          ZVAL_LONG({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF}, integer(Args[i - 1].VPointer));
+          ZVALVAL({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF}, integer(Args[i - 1].VPointer));
       end;
       vtPointer:
       begin
-        ZVAL_LONG({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF}, integer(Args[i - 1].VPointer));
+        ZVALVAL({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF}, integer(Args[i - 1].VPointer));
       end;
       vtInt64:
-        ZVAL_DOUBLE({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF}, Args[i - 1].VInt64^);
+        ZVALVAL({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF}, Args[i - 1].VInt64^);
       vtExtended:
-        ZVAL_DOUBLE({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF}, Args[i - 1].VExtended^);
+        ZVALVAL({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF}, Args[i - 1].VExtended^);
       vtBoolean:
-        ZVAL_BOOL({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF}, Args[i - 1].VBoolean);
+        ZVALVAL({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF}, Args[i - 1].VBoolean);
       vtString:
         ZVAL_STRINGL({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF}, @(Args[i - 1].VString^[0]),
           Length(Args[i - 1].VString^), True);
@@ -1555,7 +1555,7 @@ begin
           ZVAL_STRINGL({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF}, zend_pchar(S), 1, True);
         end;
       vtCurrency:
-        ZVAL_DOUBLE({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF}, double(Args[i - 1].VCurrency^));
+        ZVALVAL({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF}, double(Args[i - 1].VCurrency^));
       vtChar:
         begin
           S := Args[i - 1].VChar;
@@ -1564,7 +1564,7 @@ begin
     else
       begin
         ShowMessage('Реализовать : ' + inttostr(ord(Args[i - 1].vtype)));
-        ZVAL_NULL({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF});
+        ZVALVAL({$IFDEF PHP7}tmp{$ELSE}Self.Args[i]{$ENDIF});
       end;
     end;
     {$IFDEF PHP7}
@@ -1583,7 +1583,7 @@ begin
   end;
   {$ENDIF}
 
-  ZVAL_BOOL(Return, True);
+  ZVALVAL(Return, True);
   for i := 0 to CallBack.Count - 1 do
   begin
     Execute(CallBack[i]);
@@ -2670,7 +2670,7 @@ begin
   {$ELSE}
   SetLength(Args, 2);
   Args[0] := MAKE_STD_ZVAL;
-  ZVAL_LONG(Args[0], integer(Self.Main));
+  ZVALVAL(Args[0], integer(Self.Main));
 
   Args[1] := MAKE_STD_ZVAL;
   ZVAL_STRINGL(Args[1], zend_pchar(MyData), Length(MyData), True);

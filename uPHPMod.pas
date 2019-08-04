@@ -3396,7 +3396,7 @@ begin
 
   if O = nil then
   begin
-    ZVAL_NULL(ZendVar.AsZendVariable);
+    ZVALVAL(ZendVar.AsZendVariable);
     // := Null;
     exit;
   end;

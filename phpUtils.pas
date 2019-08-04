@@ -67,7 +67,7 @@ end;
 
 function readPr(param: pzval_array; index: integer): variant;
 begin
-  Result := zval2variant(param[index]^^);
+  Result := ZendToVariant(param[index]^);
 end;
 
 procedure readPrs(param: pzval_array; ht: integer);

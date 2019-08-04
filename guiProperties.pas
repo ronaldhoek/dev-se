@@ -123,7 +123,7 @@ begin
  {$ENDIF}
       begin
       //Вызываем функцию получения значения свойства и возвращаем результат
-        variant2zval(getProperty(integer(Z_LVAL(p[0]^)),Z_STRVAL(p[1]^)), return_value);
+        VariantToZend(getProperty(integer(Z_LVAL(p[0]^)),Z_STRVAL(p[1]^)), return_value);
       end;
 
   dispose_pzval_array(p);
@@ -142,7 +142,7 @@ begin
   //Получаем аргументы
   zend_get_parameters_my(ht, p, TSRMLS_DC);
   //Возвращаем в хэш-массив return_value тип/вид параметра/свойства объекта
-  ZVAL_LONG(return_value, getPropertyType(Z_LVAL(p[0]^), Z_STRVAL(p[1]^)));
+  ZVALVAL(return_value, getPropertyType(Z_LVAL(p[0]^), Z_STRVAL(p[1]^)));
 
   dispose_pzval_array(p);
 end;
@@ -160,7 +160,7 @@ begin
   zend_get_parameters_my(ht, p, TSRMLS_DC);
   //Проверяем свойство на существование,
   //Возращаем булево число = 0 u 1
-  ZVAL_BOOL(return_value, existProperty(Z_LVAL(p[0]^), Z_STRVAL(p[1]^)));
+  ZVALVAL(return_value, existProperty(Z_LVAL(p[0]^), Z_STRVAL(p[1]^)));
 
   dispose_pzval_array(p);
 end;
@@ -177,7 +177,7 @@ begin
   zend_get_parameters_my(ht, p, TSRMLS_DC);
   //Проверяем метод на существование,
   //Возращаем булево число = 0 u 1
-  ZVAL_BOOL(return_value, existMethod(Z_LVAL(p[0]^), Z_STRVAL(p[1]^)));
+  ZVALVAL(return_value, existMethod(Z_LVAL(p[0]^), Z_STRVAL(p[1]^)));
 
   dispose_pzval_array(p);
 end;
@@ -185,13 +185,13 @@ procedure zval_TVALUE(v: TValue; p: pzval);
 begin
     case v.Kind of
             tkUnknown:
-              ZVAL_NULL(p);
+              ZVALVAL(p);
             tkInteger:
-              ZVAL_LONG(p, v.AsInteger);
+              ZVALVAL(p, v.AsInteger);
             tkInt64:
-              ZVAL_DOUBLE(p, integer(v.AsInt64));
+              ZVALVAL(p, integer(v.AsInt64));
             tkEnumeration:
-              ZVAL_LONG(p, v.AsOrdinal);
+              ZVALVAL(p, v.AsOrdinal);
             tkWChar:
               ZVAL_STRINGW(p, PWideChar(v.AsType<WideChar>), true);
             tkChar:
@@ -201,19 +201,19 @@ begin
             tkString:
               ZVAL_STRINGW(p, PChar(String(v.AsType<ShortString>)), true);
             tkClass:
-              ZVAL_LONG(p, integer( v.AsObject ));
+              ZVALVAL(p, integer( v.AsObject ));
             tkUString:
               ZVAL_STRING(p, zend_pchar(zend_ustr(v.AsType<UnicodeString>)), true );
             tkPointer:
-              ZVAL_LONG(p, integer( v.AsType<Pointer> ));
+              ZVALVAL(p, integer( v.AsType<Pointer> ));
             tkAnsiString:
               ZVAL_STRING(p, zend_pchar(zend_ustr(v.AsType<AnsiString>)), true);
             tkWString:
               ZVAL_STRINGW(p, PChar(v.AsType<WideString>), true);
             tkVariant:
-              variant2zval(v.AsVariant, p)
+              VariantToZend(v.AsVariant, p)
             else
-              ZVAL_NULL(p);
+              ZVALVAL(p);
             end;
     v := nil;
 end;
@@ -232,7 +232,7 @@ begin
   end;
   zend_get_parameters_my(ht, p, TSRMLS_DC);
    ctx := TRttiContext.Create;
-  ZVAL_LONG(return_value, -1);
+  ZVALVAL(return_value, -1);
   {$IFDEF PHP7}
     if p[0]^^.u1.v._type = IS_LONG then
   {$ELSE}
@@ -270,9 +270,9 @@ begin
                 end;
                end
                else
-                ZVAL_LONG(return_value, integer(lMethod.ReturnType.TypeKind));
+                ZVALVAL(return_value, integer(lMethod.ReturnType.TypeKind));
               end else
-                ZVAL_LONG(return_value, integer(lMethod.ReturnType.TypeKind));
+                ZVALVAL(return_value, integer(lMethod.ReturnType.TypeKind));
             end else goto ex1;
   ex1:
   dispose_pzval_array(p);//не забываем освобождать память, иначе забьётса
@@ -509,11 +509,11 @@ begin
     if p[0]^^._type <> IS_NULL then
     {$ENDIF}
     begin
-      ZVAL_BOOL(return_value,
-      setProperty(Z_LVAL(p[0]^), Z_STRVAL(p[1]^), zval2variant(p[2]^^)));
+      ZVALVAL(return_value,
+      setProperty(Z_LVAL(p[0]^), Z_STRVAL(p[1]^), ZendToVariant(p[2]^)));
     end
     else
-      ZVAL_FALSE(return_value);
+      ZVALVAL(return_value,FALSE);
 
   dispose_pzval_array(p);
 end;
@@ -668,7 +668,7 @@ begin
   zend_get_parameters_my(ht, p, TSRMLS_DC);
   //Проверяем метод на существование,
   //Возращаем булево число = 0 u 1
-  ZVAL_BOOL(return_value, existMethodClass(Z_STRVAL(p[0]^), Z_STRVAL(p[1]^)));
+  ZVALVAL(return_value, existMethodClass(Z_STRVAL(p[0]^), Z_STRVAL(p[1]^)));
 
   dispose_pzval_array(p);
 end;
@@ -710,7 +710,7 @@ begin
   end;
   zend_get_parameters_my(ht, p, TSRMLS_DC);
 
-  ZVAL_BOOL(return_value, LoadTypeLib(string(Z_STRVAL(p[0]^))));
+  ZVALVAL(return_value, LoadTypeLib(string(Z_STRVAL(p[0]^))));
 
   dispose_pzval_array(p);
 end;
@@ -725,7 +725,7 @@ begin
   end;
   zend_get_parameters_my(ht, p, TSRMLS_DC);
 
-  ZVAL_BOOL(return_value, LoadTypePackage(string(Z_STRVAL(p[0]^))));
+  ZVALVAL(return_value, LoadTypePackage(string(Z_STRVAL(p[0]^))));
 
   dispose_pzval_array(p);
 end;
@@ -740,7 +740,7 @@ begin
   end;
   zend_get_parameters_my(ht, p, TSRMLS_DC);
 
-  ZVAL_BOOL(return_value, getPropReadable(string(Z_STRVAL(p[0]^)), string(Z_STRVAL(p[1]^))));
+  ZVALVAL(return_value, getPropReadable(string(Z_STRVAL(p[0]^)), string(Z_STRVAL(p[1]^))));
 
   dispose_pzval_array(p);
 end;
@@ -755,7 +755,7 @@ begin
   end;
   zend_get_parameters_my(ht, p, TSRMLS_DC);
 
-  ZVAL_BOOL(return_value, getPropWritable(string(Z_STRVAL(p[0]^)), string(Z_STRVAL(p[1]^))));
+  ZVALVAL(return_value, getPropWritable(string(Z_STRVAL(p[0]^)), string(Z_STRVAL(p[1]^))));
 
   dispose_pzval_array(p);
 end;

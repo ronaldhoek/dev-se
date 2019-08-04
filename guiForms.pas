@@ -52,7 +52,7 @@ begin
   end;
   zend_get_parameters_ex(ht, p);
 
-  variant2zval(Form_ShowModal(Z_LVAL(p[0]^)), return_value);
+  VariantToZend(Form_ShowModal(Z_LVAL(p[0]^)), return_value);
   dispose_pzval_array(p);
 end;
 
@@ -82,7 +82,7 @@ begin
   obj := toObject(Z_LVAL(p[0]^));
   if (obj = nil) or not (obj is TForm) then
   begin
-    ZVAL_BOOL(return_value, False);
+    ZVALVAL(return_value, False);
   end
   else
   begin
