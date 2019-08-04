@@ -1,0 +1,5 @@
+CaptionedDockTree2.pas Note: Кодування змінено з ucs2le на UTF-8
+CaptionedDockTree2.pas Note: Замінений модуль "Windows" на "LCLIntf, LCLType, LMessages" в секції uses.
+CaptionedDockTree2.pas(1,28) Note: Після назви модуля додано модифікатор синтаксису MODE Delphi.
+ : 
+ Fatal: Перетворення перервано.

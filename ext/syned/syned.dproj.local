@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.995,=SynEdit_R.dcp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.048,=rtl.dcp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.430,=C:\dev\sefrolov\ext\syned\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.303,C:\dev\sefrolov\ext\syned\syned.dproj=C:\Users\Andrew\Documents\Embarcadero\Studio\Projects\syned.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.687,=vcl.dcp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.843,=C:\Users\Andrew\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.717,C:\dev\sefrolov\ext\syned\ISynTypeReg.pas=C:\Users\Andrew\Documents\Embarcadero\Studio\Projects\ISynTypeReg.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.941,C:\Users\Andrew\Documents\Embarcadero\Studio\Projects\ISynTypeReg.pas=C:\Users\Andrew\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.365,C:\Users\Andrew\Documents\Embarcadero\Studio\Projects\syned.dproj=C:\Users\Andrew\Documents\Embarcadero\Studio\Projects\Package1.dproj</Transaction>
+    <Transaction>2018.12.13 12:31:50.680,=SynEdit_R.dcp</Transaction>
+  </Transactions>
+</BorlandProject>

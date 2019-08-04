@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Compiler Value="C:\fpcupdeluxe\fpc\bin\x86_64-win64\fpc.exe" Date="1324390607"/>
+  <Params Value=" -MObjFPC -Schi -O1 -g -gl -l -vewnhibq -FiC:\dev\sefrolov\CEF4Delphi-master\source -FiC:\dev\sefrolov\CEF4Delphi-master\source\res -FuC:\dev\sefrolov\CEF4Delphi-master\source -FuC:\fpcupdeluxe\lazarus\packager\units\x86_64-win64 -FuC:\fpcupdeluxe\lazarus\components\lazutils\lib\x86_64-win64 -FuC:\fpcupdeluxe\lazarus\lcl\units\x86_64-win64 -FuC:\fpcupdeluxe\lazarus\lcl\units\x86_64-win64\win32 -FuC:\dev\sefrolov\CEF4Delphi-master\packages\ -FUC:\dev\sefrolov\CEF4Delphi-master\packages\lib\x86_64-win64\ -dLCL -dLCLwin32 cef4delphi_lazarus.pas"/>
+</CONFIG>
