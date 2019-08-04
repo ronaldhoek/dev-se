@@ -325,10 +325,7 @@ begin
     Exit;
   end;
   zend_get_parameters_my(ht, p, TSRMLS_DC);
-
-
-  VariantToZend(regGUI.objectIs(Z_LVAL(p[0]^), Z_STRVAL(p[1]^)), return_value);
-
+  ZVALVAL(return_value,regGUI.objectIs(Z_LVAL(p[0]^), Z_STRVAL(p[1]^)));
   dispose_pzval_array(P);
 end;
 
