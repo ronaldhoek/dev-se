@@ -42,8 +42,6 @@ end;
 procedure gui_GetCapture(ht: integer; return_value: pzval;
   return_value_ptr: pzval; this_ptr: pzval; return_value_used: integer;
   TSRMLS_DC: pointer); cdecl;
-var
-  p: pzval_array;
 begin
   if ht <> 0 then
   begin

@@ -4708,9 +4708,9 @@ end;
 procedure TphpMOD._ChromiumFunctions0Execute(Sender: TObject;
   Parameters: TFunctionParams; var ReturnValue: variant; ZendVar: TZendVariable;
   TSRMLS_DC: Pointer);
+{$IFDEF ADD_CHROMIUM}
 var
   arr: TArrayVariant;
-{$IFDEF ADD_CHROMIUM}
   Req: ICefRequest;
   kevent: TCefKeyEvent;
   mevent: TCefMouseEvent;
@@ -4881,10 +4881,10 @@ end;
 procedure TphpMOD._ChromiumFunctions1Execute(Sender: TObject;
   Parameters: TFunctionParams; var ReturnValue: variant; ZendVar: TZendVariable;
   TSRMLS_DC: Pointer);
-var
+{$IFDEF ADD_CHROMIUM}
+  var
   isGet: boolean;
 begin
-{$IFDEF ADD_CHROMIUM}
   isGet := Parameters[2].Value = Null;
   with TChromium(ToObj(Parameters, 0)) do
   begin
@@ -4916,6 +4916,8 @@ begin
         end;
     end;
   end;
+{$ELSE}
+begin
 {$ENDIF}
 end;
 
