@@ -241,57 +241,84 @@ A50, A51, A52, A53: PVarRec);
     constructor Create();
     destructor Destroy;
   end;
-
+TVarRecToObj = reference to procedure(z:pzval;v:TVarRec);
+TPHPObjToVarRec = reference to function(v:pzval):TVarRec;
+function VarRecToZval(VarRec: TVarRec; v: pzval; vice_city:TVarRecToObj=nil);
+function ZvalToVarRec(zeval: pzval;kind:trttitype;crimepoint:TPHPObjToVarRec=nil);
 var
   EventHookObject: TEventHook;
-
 implementation
+
+function VarRecToZval(VarRec: TVarRec; v: pzval; vice_city:TVarRecToObj=nil);
+begin
+  case VarRec of
+    vtInteger:        ZVALVAL(v, VarRec.VInteger);
+    vtBoolean:        ZVALVAL(v, VarRec.VBoolean);
+    vtChar:           ZVALVAL(v, zend_pchar(VarRec.VChar), True);
+    vtExtended:       ZVALVAL(v, VarRec.VExtended^);
+    vtString:         ZVALVAL(v, zend_ustr(VarRec.VString^), True);
+    vtPChar:          ZvalVAL(v, VarRec.VPChar);
+
+    vtPointer:
+     if Assigned(vice_city) then
+      vice_city(v,VarRec)
+    else
+      ZVALVAL(v, integer(VarRec.VPointer))
+    ;//HERE;
+    vtObject:
+     if Assigned(vice_city) then
+      vice_city(v,VarRec)
+    else
+      ZVALVAL(v, integer(VarRec.VObject))
+    ;//HERE;
+    vtClass:
+     if Assigned(vice_city) then
+      vice_city(v,VarRec)
+    else
+      ZVALVAL(v, VarRec.VClass.ClassName, Length(VarRec.VClass.ClassName))
+    ;//HERE;
+    vtInterface:
+     if Assigned(vice_city) then
+        vice_city(v,VarRec)
+    else
+      ZVALVAL(v, integer(VarRec.VInterface^))
+    ;//HERE;
+
+    vtWideChar:       ZvalVAL(v, VarRec.VPWideChar);
+    vtAnsiString:     ZvalVAL(v, zend_pchar(zend_ustr(VarRec.VAnsiString)));
+    vtUnicodeString:  ZvalVAL(v, UnicodeString(VarRec._Reserved1));
+    vtCurrency:       ZvalVAl(v, VarRec.VCurrency^);
+
+    vtVariant:        VariantToZend(VarRec.VVariant^, v);
+    vtWideString:     ZvalVAL(v, zend_pchar(VarRec.VWideString^));
+    vtInt64:          ZvalVAL(Result, NativeInt(VarRec.VInt64^));
+  end;
+end;
+
+function ZvalToVarRec(zeval: pzval;kind:trttitype=nil;crimepoint:TPHPObjToVarRec=nil);
+begin
+
+end;
+
+function _c(id: integer;n:Char;TSRMLS_DC:pointer): pzval;
+var arg,f: pzval;
+begin
+  f       := MAKE_STD_ZVAL;//Имя функции или функция
+  arg     := MAKE_STD_ZVAL;//Параметр~(~ы)
+  Result  := MAKE_STD_ZVAL;//Результат вызова
+  ZVALVAL(arg, id);
+  ZVALVAL(f, '_' + n, 2);
+  call_user_function
+  (GetExecutorGlobals.function_table, nil, f, Result, 1, [arg], TSRMLS_DC);
+  freemem(arg);
+  freemem(f);
+end;
 
 constructor TEventHook.Create();
 begin
   FlList := TDictionary<String, TBaseEvent>.Create();
 end;
-//NOTICE;
-{ТЕБЕ ОСТАЛОСЬ НАПИСАТЬ ВОТ ЭТО... ну или найти в уже готовых исходниках
-Названия этих функций...}
-function VarRecToZval(VarRec: TVarRec; v: pzval);
-begin
-  case VarRec of
-    vtInteger: ZVALVAL(v, VarRec.VInteger);
-    vtBoolean: ZVALVAL(v, VarRec.VBoolean);
-    vtChar: ZVALVAL(v, zend_pchar(VarRec.VChar), True);
-    vtExtended: ZVALVAL(v, VarRec.VExtended^);
-    vtString: ZVALVAL(v, zend_ustr(VarRec.VString^), True);
-    vtPChar:  ZvalVAL(v, VarRec.VPChar);
 
-    vtPointer:;//HERE;
-    vtObject:;//HERE;
-    vtClass:;//HERE;
-    vtInterface:;//HERE;
-
-    vtWideChar: ZvalVAL(v, VarRec.VPWideChar);
-    vtAnsiString: ZvalVAL(v, zend_pchar(zend_ustr(VarRec.VAnsiString)));
-    vtUnicodeString: ZvalVAL(v, UnicodeString(VarRec._Reserved1));
-    vtCurrency: ZvalVAl(v, VarRec.VCurrency^);
-
-    vtVariant: VariantToZend(VarRec.VVariant^, v);
-    vtWideString: ZvalVAL(v, zend_pchar(VarRec.VWideString^));
-    vtInt64: ZvalVAL(Result, NativeInt(VarRec.VInt64^));
-  end;
-end;
-
-function ZvalToVarRec(zeval: pzval;kind:trttitype);
-begin
-
-end;
-//NOTICE;
-procedure zval_dtor_func(val: pzval);
-begin
-  // efree(val);
-  { Dec(val^.refcount);
-    if val^.refcount = 0 then }
-  _zval_dtor(val, nil, 0);
-end;
 procedure TBaseEvent.Handler(PointArgs: Array of PVarRec);
 var
   I: Byte;
@@ -302,14 +329,16 @@ var
     compiler_globals, cg: Pzend_compiler_globals;
     lastConstants, lastFunctions, lastClasses: {$IFDEF PHP7}pzval{$ELSE}PHashTable{$ENDIF};
     tsrmdc: pointer;
-    return: pzval;
+    return {$IFDEF PHP7}, tmp{$ENDIF}: pzval;
     sName: string;
     strs: zend_ustr;
     sOwner:integer;
     isThread: boolean;
+    myMFC: TVarRecToObj;
 begin
   SetLength(Args, 0);
   tsrmdc := mypsvPHP.TSRMLS_D;
+  executor_globals := GetGlobalResourceDC('executor_globals_id',  mypsvPHP.TSRMLS_D);
   isThread := GetCurrentThreadId <> MainThreadId;
   //--тут проверка на поток + костыль, кхм велосипед вернее
     if isThread then
@@ -319,7 +348,6 @@ begin
         {НИ В КОЕМ СЛУЧАЕ НЕ УБИРАТЬ ECHO 1, ДА ГОВНОКОД, НО ЭТО КАКОЙ-ТО ХИТРЫЙ КОСТЫЛЬ!}
         psv.RunCode('echo 1; ' + '$GLOBALS["THREAD_SELF"] = ' +
           IntToStr(integer(thread)) + ';');
-        executor_globals := GetGlobalResourceDC('executor_globals_id',  mypsvPHP.TSRMLS_D);
         compiler_globals := GetGlobalResourceDC('compiler_globals_id',  mypsvPHP.TSRMLS_D);;
         eg := GetGlobalResourceDC('executor_globals_id',  psv.TSRMLS_D);
         cg := GetGlobalResourceDC('compiler_globals_id',  psv.TSRMLS_D);
@@ -381,12 +409,12 @@ begin
     SetLength(Args, I+1);
   //--тут следует подготовить параметры для функции-обработчика
   //--они должны быть в ПОЛНОСТЬЮ готовом виде - объекты, параметры, строки и т.д
-      Args[I] := VarRecToZval(PointArgs[I]^);
+      Args[I] := VarRecToZval(PointArgs[I]^,myMFC);
   end;
   return := MAKE_STD_ZVAL;
   for i := Low(ListEventsCall) to ListEventsCallCount - 1 do
   //Тут вызываем пользовательский обработчик
-   call_user_function(GetExecutorGlobals.function_table, nil,
+   call_user_function(executor_globals.function_table, nil,
    ListEventsCall[i]{FUNCTION},
    return, Length(Args), Args,
    tsrmdc
@@ -415,7 +443,7 @@ begin
       zval_dtor_func(tmp);
     {$ELSE}
     if Args[i] <> nil then
-      zval_dtor_func(Args[i]);
+      _zval_dtor_func(Args[i], nil, 0);
     {$ENDIF}
   end;
   {$IFDEF PHP7}
@@ -423,7 +451,7 @@ begin
   {$ELSE}
   SetLength(Args, 0);
   {$ENDIF}
-  zval_dtor_func(return);//эту фигню мы так и не используем. А зачем? :)
+  _zval_dtor_func(return, nil, 0);//эту фигню мы так и не используем. А зачем? :)
   //--Тут высвобождаем/удаляем инфу о событии
   strs :=
         zend_ustr(
