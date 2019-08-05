@@ -300,16 +300,19 @@ begin
 
 end;
 
-function _c(id: integer;n:Char;TSRMLS_DC:pointer): pzval;
+procedure _c(id: integer;Result:pzval;n:Char;TSRMLS_DC:pointer);
 var arg,f: pzval;
 begin
   f       := MAKE_STD_ZVAL;//Имя функции или функция
   arg     := MAKE_STD_ZVAL;//Параметр~(~ы)
-  Result  := MAKE_STD_ZVAL;//Результат вызова
   ZVALVAL(arg, id);
   ZVALVAL(f, '_' + n, 2);
   call_user_function
-  (GetExecutorGlobals.function_table, nil, f, Result, 1, [arg], TSRMLS_DC);
+  (
+  pzend_executor_globals(GetGlobalResourceDC('executor_globals_id',  TSRMLS_DC))
+  .function_table, nil, f, Result, 1, [arg]
+  ,TSRMLS_DC
+  );
   freemem(arg);
   freemem(f);
 end;
@@ -402,7 +405,15 @@ begin
      psv.RunCode(strs)
   else
     mypsvPHP.RunCode(strs);
-
+  myMfc = procedure(z:pzval;v:TVarRec)
+  begin
+      case V.Vtype of
+       vtPointer: _c(integer(v.VPointer), z, 'p', tsrmdc);
+       vtObject: _c(integer(v.VObject), z, 'c', tsrmdc);
+       vtClass: _c(integer(v.VClass), z, 'j', tsrmdc);
+       vtInterface: _c(integer(v.VObject), z, 'i', tsrmdc);
+      end;
+  end;
   if LengthArgs > 0 then    //если параметров у события больше нуля
   for I := 0 to LengthArgs-1 do
   begin
