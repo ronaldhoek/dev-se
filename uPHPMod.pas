@@ -2479,31 +2479,24 @@ procedure TphpMOD.PHPLibraryFunctions1Execute(Sender: TObject;
   Parameters: TFunctionParams; var ReturnValue: variant; ZendVar: TZendVariable;
   TSRMLS_DC: Pointer);
 var
-  Obj, Owner: TComponent;
-  P: TComponentClass;
+  Owner: TComponent;
+  P: TClass;
 begin
-  try
-    if Parameters[1].Value = aNil then
+  ReturnValue := 0;
+
+    if VarIsNull(Parameters[1].Value) or Parameters[1].Value = aNil then
       Owner := Application
     else
       Owner := ToComp(Parameters[1].Value);
-
-    P := TComponentClass(GetClass(Parameters[0].Value));
-
+    P := GetClass(Parameters[0].Value);
     if (P <> nil) then
     begin
 
-      Obj := TComponentClass(P).Create(Owner);
-      ReturnValue := integer(Obj);
-    end
-    else
-    begin
-      ReturnValue := 0;
+      if P.InheritsFrom(TComponent) then
+        ReturnValue := integer(TComponentClass(P).Create(Owner))
+      else
+        ReturnValue := integer(P.Create);
     end;
-
-  except
-    ReturnValue := 0;
-  end;
 end;
 
 procedure TphpMOD.PHPLibraryFunctions3Execute(Sender: TObject;
