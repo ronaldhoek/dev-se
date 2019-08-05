@@ -244,7 +244,7 @@ A50, A51, A52, A53: PVarRec);
 TVarRecToObj = reference to procedure(z:pzval;v:TVarRec);
 TPHPObjToVarRec = reference to function(v:pzval):TVarRec;
 procedure VarRecToZval(VarRec: TVarRec; v: pzval; vice_city:TVarRecToObj=nil);
-procedure ZvalToVarRec(zeval: pzval;kind:trttitype;crimepoint:TPHPObjToVarRec=nil);
+procedure ZvalToVarRec(zeval: pzval;kind:word=nil;crimepoint:TPHPObjToVarRec=nil);
 var
   EventHookObject: TEventHook;
 implementation
@@ -295,7 +295,7 @@ begin
   end;
 end;
 
-function ZvalToVarRec(zeval: pzval;kind:trttitype=nil;crimepoint:TPHPObjToVarRec=nil);
+function ZvalToVarRec(zeval: pzval;kind:word=nil;crimepoint:TPHPObjToVarRec=nil);
 begin
 
 end;
@@ -445,7 +445,7 @@ begin
   if InfoArgs[I].Flags * [pfVar, pfOut] <> [] then //тут нам и нужно инфо события
   //и его параметров - для проверки того, не является ли параметр переменной или
   //<<выходными данными>> - outer data
-    PointArgs[I]^ := ZvalToVarRec(Args[I]);
+    PointArgs[I]^ := ZvalToVarRec(Args[I],PointArgs[I]^.VType);
     //Предыдущий указатель автоматически уничтожается, высвобождать его не требуется
   end;
   //---Енд
