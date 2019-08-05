@@ -215,7 +215,6 @@ begin
             else
               ZVALVAL(p);
             end;
-    v := nil;
 end;
 procedure gui_methodrtype;
 label ex1;

@@ -2444,7 +2444,6 @@ begin
       if ( GetForegroundWindow <> fParentForm.Handle)
           and (fState <> scsReady) then
       begin
-        ShowMessage('s');
         fState := scsReady;
         if TargetCount > 0 then
         for i := 0 to TargetCount - 1 do
