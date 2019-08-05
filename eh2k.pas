@@ -243,13 +243,13 @@ A50, A51, A52, A53: PVarRec);
   end;
 TVarRecToObj = reference to procedure(z:pzval;v:TVarRec);
 TPHPObjToVarRec = reference to function(v:pzval):TVarRec;
-function VarRecToZval(VarRec: TVarRec; v: pzval; vice_city:TVarRecToObj=nil);
-function ZvalToVarRec(zeval: pzval;kind:trttitype;crimepoint:TPHPObjToVarRec=nil);
+procedure VarRecToZval(VarRec: TVarRec; v: pzval; vice_city:TVarRecToObj=nil);
+procedure ZvalToVarRec(zeval: pzval;kind:trttitype;crimepoint:TPHPObjToVarRec=nil);
 var
   EventHookObject: TEventHook;
 implementation
 
-function VarRecToZval(VarRec: TVarRec; v: pzval; vice_city:TVarRecToObj=nil);
+procedure VarRecToZval(VarRec: TVarRec; v: pzval; vice_city:TVarRecToObj=nil);
 begin
   case VarRec of
     vtInteger:        ZVALVAL(v, VarRec.VInteger);
@@ -291,7 +291,7 @@ begin
 
     vtVariant:        VariantToZend(VarRec.VVariant^, v);
     vtWideString:     ZvalVAL(v, zend_pchar(VarRec.VWideString^));
-    vtInt64:          ZvalVAL(Result, NativeInt(VarRec.VInt64^));
+    vtInt64:          ZvalVAL(v, NativeInt(VarRec.VInt64^));
   end;
 end;
 
@@ -420,7 +420,12 @@ begin
     SetLength(Args, I+1);
   //--тут следует подготовить параметры дл€ функции-обработчика
   //--они должны быть в ѕќЋЌќ—“№ё готовом виде - объекты, параметры, строки и т.д
-      Args[I] := VarRecToZval(PointArgs[I]^,myMFC);
+      Args[I] := MAKE_STD_ZVAL;
+      VarRecToZval(PointArgs[I]^,Args[I],myMFC);
+  end else begin
+     SetLength(Args, 1);
+     Args[1] := MAKE_STD_ZVAL;
+     Args[1] := _c(integer(Self.Sender), Args[1], 'c', tsrmdc);
   end;
   return := MAKE_STD_ZVAL;
   for i := Low(ListEventsCall) to ListEventsCallCount - 1 do
@@ -446,6 +451,7 @@ begin
   //---≈нд
   //--тут следует вызывать очистку параметров
   if LengthArgs > 0 then    //если параметров у событи€ больше нул€
+  begin
   for I := 0 to LengthArgs-1 do
   begin
     {$IFDEF PHP7}
@@ -455,6 +461,16 @@ begin
     {$ELSE}
     if Args[i] <> nil then
       _zval_dtor_func(Args[i], nil, 0);
+    {$ENDIF}
+  end;
+  end else begin
+    {$IFDEF PHP7}
+    tmp := zend_hash_index_findZval(Args, 0);
+    if tmp <> nil then
+      zval_dtor_func(tmp);
+    {$ELSE}
+    if Args[0] <> nil then
+      _zval_dtor_func(Args[0], nil, 0);
     {$ENDIF}
   end;
   {$IFDEF PHP7}
