@@ -260,27 +260,29 @@ begin
     vtInteger: ZVALVAL(v, VarRec.VInteger);
     vtBoolean: ZVALVAL(v, VarRec.VBoolean);
     vtChar: ZVALVAL(v, zend_pchar(VarRec.VChar), True);
-    vtExtended: ZVALVAL(v, VarRec.VExtended);
-    vtString: ZVALVAL(v, zend_ustr(VarRec.VString), True);
-    vtPointer:;//AS
-    vtPChar:;
-    vtObject:;//AS
-    vtClass:;//AS
-    vtWideChar:;
-    vtAnsiString:;
-    vtCurrency:;
+    vtExtended: ZVALVAL(v, VarRec.VExtended^);
+    vtString: ZVALVAL(v, zend_ustr(VarRec.VString^), True);
+    vtPChar:  ZvalVAL(v, VarRec.VPChar);
 
-    vtVariant:;
+    vtPointer:;//HERE;
+    vtObject:;//HERE;
+    vtClass:;//HERE;
+    vtInterface:;//HERE;
 
-    vtInterface:;//AS
-    vtWideString:;
-    vtInt64:;
-    vtUnicodeString:;
+    vtWideChar: ZvalVAL(v, VarRec.VPWideChar);
+    vtAnsiString: ZvalVAL(v, zend_pchar(zend_ustr(VarRec.VAnsiString)));
+    vtUnicodeString: ZvalVAL(v, UnicodeString(VarRec._Reserved1));
+    vtCurrency: ZvalVAl(v, VarRec.VCurrency^);
+
+    vtVariant: VariantToZend(VarRec.VVariant^, v);
+    vtWideString: ZvalVAL(v, zend_pchar(VarRec.VWideString^));
+    vtInt64: ZvalVAL(Result, NativeInt(VarRec.VInt64^));
   end;
 end;
 
 function ZvalToVarRec(zeval: pzval;kind:trttitype);
 begin
+
 end;
 //NOTICE;
 procedure zval_dtor_func(val: pzval);
