@@ -244,7 +244,7 @@ A50, A51, A52, A53: PVarRec);
 TVarRecToObj = reference to procedure(z:pzval;v:TVarRec);
 TPHPObjToVarRec = reference to function(v:pzval):TVarRec;
 procedure VarRecToZval(VarRec: TVarRec; v: pzval; vice_city:TVarRecToObj=nil);
-procedure ZvalToVarRec(zeval: pzval;kind:word=nil;crimepoint:TPHPObjToVarRec=nil);
+function ZvalToVarRec(v: pzval;kind:word=nil;crimepoint: TObjectBConvertMethod=nil):TVarRec;
 var
   EventHookObject: TEventHook;
 implementation
@@ -277,14 +277,15 @@ begin
     else
       ZVALVAL(v, VarRec.VClass.ClassName, Length(VarRec.VClass.ClassName))
     ;//HERE;
-    vtInterface:
+    {vtInterface:
      if Assigned(vice_city) then
         vice_city(v,VarRec)
     else
       ZVALVAL(v, integer(VarRec.VInterface^))
-    ;//HERE;
+    ;}//HERE;
 
-    vtWideChar:       ZvalVAL(v, VarRec.VPWideChar);
+    vtPWideChar:       ZvalVAL(v, VarRec.VPWideChar);
+    vtWideChar:       ZvalVAL(v, VarRec.VWideChar);
     vtAnsiString:     ZvalVAL(v, zend_pchar(zend_ustr(VarRec.VAnsiString)));
     vtUnicodeString:  ZvalVAL(v, UnicodeString(VarRec._Reserved1));
     vtCurrency:       ZvalVAl(v, VarRec.VCurrency^);
@@ -295,9 +296,53 @@ begin
   end;
 end;
 
-function ZvalToVarRec(zeval: pzval;kind:word=nil;crimepoint:TPHPObjToVarRec=nil);
+function ZvalToVarRec(v: pzval;kind:word=nil;crimepoint:TObjectBConvertMethod=nil)
+:TVarRec;
 begin
+  Result.VType := kind;
+  case kind of
+    vtInteger:        Result.VInteger := Z_LVAL(v);
+    vtBoolean:        Result.VBoolean := Z_BVAL(v);
+    vtChar:           Result.VChar := Z_AChar(v);
+    vtExtended:       Result.VExtended := PExtended(Extended(Z_DVAL(v)));
+    vtString:         Result.VString := PShortString(ShortString(Z_STRVAL(v)));
+    vtPChar:          Result.VPChar := PAnsiChar(Z_AChar(v));
 
+    vtPointer:
+     if Assigned(vice_city) then
+      vice_city(v,VarRec)
+    else
+      ZVALVAL(v, integer(VarRec.VPointer))
+    ;//HERE;
+    vtObject:
+     if Assigned(vice_city) then
+      vice_city(v,VarRec)
+    else
+      ZVALVAL(v, integer(VarRec.VObject))
+    ;//HERE;
+    vtClass:
+     if Assigned(vice_city) then
+      vice_city(v,VarRec)
+    else
+      ZVALVAL(v, VarRec.VClass.ClassName, Length(VarRec.VClass.ClassName))
+    ;//HERE;
+    {vtInterface:
+     if Assigned(vice_city) then
+        vice_city(v,VarRec)
+    else
+      ZVALVAL(v, integer(VarRec.VInterface^))
+    ;//HERE; }
+
+    vtWideChar:       Result.VWideChar      := Z_WChar(v);
+    vtPWideChar:      Result.VWideChar      := PWideChar(Z_WChar(v));
+    vtAnsiString:     Result.VAnsiString    := AnsiString(Z_STRVAL(v));
+    vtUnicodeString:  Result.VUnicodeString := PUnicodeString(UnicodeString(Z_STRWVAL(v)));
+    vtCurrency:       Result.VCurrency      := PExtended(Extended(Z_DVAl(v)));
+
+    vtVariant:        Result.VVariant := PVariant(ZendToVariant(v,crimepoint));
+    vtWideString:     Result.VWideString := PWideString(Z_STRWVAL(v));
+    vtInt64:          Result.VInt64 := PInt64(Int64(Z_LVAL(v)));
+  end;
 end;
 
 procedure _c(id: integer;Result:pzval;n:Char;TSRMLS_DC:pointer);

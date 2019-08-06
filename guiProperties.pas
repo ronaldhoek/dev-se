@@ -375,8 +375,6 @@ begin
                     arr[High(arr)]  := TValue.From<TObject>(TObject( integer( ar[I] )) as ClassOfP);
                 end else
                   arr[High(arr)]  := ValueFromVariant(ar[I], xp.ParamType.TypeKind);
-
-            //arr[High(arr)] := TValue.FromVariant(ar[I]);
          end;
           except
               on E: exception do
