@@ -611,8 +611,8 @@ begin
   end;
 
   zend_get_parameters_my(ht, p, TSRMLS_DC);
-     evt_param_names(Z_STRVAL(p[0]^), Z_STRVAL(p[1]^), @arrn);
-     evt_param_types(Z_STRVAL(p[0]^), Z_STRVAL(p[1]^), @arrv);
+     evt_param_names(Z_STRVAL(p[0]^), Z_STRVAL(p[1]^), @arrv);
+     evt_param_types(Z_STRVAL(p[0]^), Z_STRVAL(p[1]^), @arrn);
      ZVAL_ARRAYWS(return_value, arrn, arrv);
     dispose_pzval_array(p);
 
@@ -771,8 +771,8 @@ begin
   PHPEngine.AddFunction('gui_class_propArray', @gui_class_propArray);
   PHPEngine.AddFunction('gui_propSet', @gui_propSet);
   PHPEngine.AddFunction('gui_get_event_paramss', @gui_get_evt_paramss);
-  PHPEngine.AddFunction('gui_get_event_param_names', @gui_get_evt_paramnames);
-  PHPEngine.AddFunction('gui_get_event_param_types', @gui_get_evt_paramtypes);
+  PHPEngine.AddFunction('gui_get_event_param_names', @gui_get_evt_paramtypes);
+  PHPEngine.AddFunction('gui_get_event_param_types',  @gui_get_evt_paramnames);
   PHPEngine.AddFunction('gui_get_event_assoc_info', @gui_get_evt_assci);
   PHPEngine.AddFunction('gui_class_methodList', @gui_class_methodList);
   PHPEngine.AddFunction('gui_get_method_params', @gui_get_method_params);

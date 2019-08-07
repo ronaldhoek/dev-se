@@ -362,7 +362,7 @@ begin
            for b := 0 to TypeData^.ParamCount-1 do
            begin
              SetLength(arr1^, Length(arr1^) + 1);
-
+              Result := '';
               Flags := PParamFlags(Ptr)^;
               Inc(Ptr, SizeOf(TParamFlags));
               if pfConst in Flags then Result := Result + 'constant ';
@@ -385,7 +385,7 @@ var
   Ptr: PByte;
   B: Byte;
   TypeInfo: PTypeInfo;
-
+  S: string;
 begin
     SetLength(arr1^, 0);
           if( Assigned( GetClass( classname ) ) ) then
@@ -398,8 +398,16 @@ begin
           begin
            for b := 0 to TypeData^.ParamCount-1 do
            begin
+             Inc(Ptr, SizeOf(TParamFlags));
              SetLength(arr1^, Length(arr1^) + 1);
-             arr1^[High(arr1^)] := String(PShortString(Ptr)^);
+             S := String(PShortString(Ptr)^);
+             if S = 'Sender' then
+              arr1^[High(arr1^)] := '$self'
+             else
+              arr1^[High(arr1^)] :=  '$' + LowerCase(S);
+
+              Inc(Ptr, 1 + Length(PShortString(Ptr)^));
+              Inc(Ptr, 1 + Length(PShortString(Ptr)^));
             end;
           end;
 end;

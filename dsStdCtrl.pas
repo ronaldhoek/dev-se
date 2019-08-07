@@ -36,6 +36,7 @@ type
     FrealWidth: integer;
     FCaption: string;
     FLabelDblClick: TNotifyEvent;
+    fa: TComponent;
     // FLabelClick: TNotifyEvent;
     procedure SetfileName(const Value: string);
     procedure SetrealHeight(const Value: integer);
@@ -53,6 +54,7 @@ type
     destructor Destroy; override;
     procedure loadFromFile(fileName: string);
   published
+    property Assoc: TComponent read fa write fa;
     property __iconName: string read FfileName write SetfileName;
     property realWidth: integer read FrealWidth write SetrealWidth default 24;
     property realHeight: integer read FrealHeight write SetrealHeight
@@ -1033,6 +1035,7 @@ begin
 end;
 
 procedure __TNoVisual.Paint;
+var stext: string;
 begin
   // if not Visible then exit;
   inherited;
@@ -1046,9 +1049,13 @@ begin
 
   if FLabel <> nil then
   begin
-    FLabel.Caption := Name;
+    if Assoc <> nil then
+      stext := Assoc.Name
+    else
+      stext := Name;
+    FLabel.Caption := stext;
     FLabel.Left := Round(Left + (realWidth / 2) -
-      (Canvas.TextWidth(Name) / 2) - 1);
+      (Canvas.TextWidth(stext) / 2) - 1);
     FLabel.Top := Top + Height + 3;
     FLabel.Paint;
   end;
