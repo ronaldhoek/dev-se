@@ -35,12 +35,16 @@ type
     FrealHeight: integer;
     FrealWidth: integer;
     FCaption: string;
+    FTop, FLeft: integer;
+    fc: TNOTifyEvent;
     FLabelDblClick: TNotifyEvent;
     fa: TComponent;
     // FLabelClick: TNotifyEvent;
     procedure SetfileName(const Value: string);
     procedure SetrealHeight(const Value: integer);
     procedure SetrealWidth(const Value: integer);
+    procedure FSetLEft(const Value: integer);
+    procedure FSetFTop(const Value: integer);
     procedure SetCaption(const Value: string);
   protected
     procedure SetName(const Value: TComponentName); override;
@@ -59,6 +63,9 @@ type
     property realWidth: integer read FrealWidth write SetrealWidth default 24;
     property realHeight: integer read FrealHeight write SetrealHeight
       default 24;
+    property Left: integer read FLeft write FSetlEft;
+    property Top: integer read fTop write FSetFtop;
+    property onMove:TNOTifyEvent read fc write fc;
     property Caption: string read FCaption write SetCaption;
     property OnDblClick: TNotifyEvent read FLabelDblClick write FLabelDblClick;
     property Font;
@@ -1114,6 +1121,20 @@ begin
   Constraints.MaxWidth := Value;
 end;
 
+procedure __TNoVisual.FSetLEft(const Value: integer);
+begin
+  FLeft := Value;
+  inherited Left := Value;
+  if Assigned(fc) then
+    fc(Self as TObject);
+end;
+procedure __TNoVisual.FSetFTop(const Value: integer);
+begin
+  FTop := Value;
+  inherited Top := Value;
+  if Assigned(fc) then
+    fc(Self as TObject);
+end;
 procedure __TNoVisual.WMMove(var Msg: TWMMove);
 begin
   inherited;
