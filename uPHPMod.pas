@@ -836,6 +836,9 @@ type
     procedure _TTreeFunctions7Execute(Sender: TObject;
       Parameters: TFunctionParams; var ReturnValue: variant;
       ZendVar: TZendVariable; TSRMLS_DC: Pointer);
+    procedure _TTreeFunctions8Execute(Sender: TObject;
+      Parameters: TFunctionParams; var ReturnValue: variant;
+      ZendVar: TZendVariable; TSRMLS_DC: Pointer);
     procedure libDialogsFunctions2Execute(Sender: TObject;
       Parameters: TFunctionParams; var ReturnValue: variant;
       ZendVar: TZendVariable; TSRMLS_DC: Pointer);
@@ -1038,9 +1041,6 @@ type
       Parameters: TFunctionParams; var ReturnValue: variant;
       ZendVar: TZendVariable; TSRMLS_DC: Pointer);
     procedure __WinUtilsFunctions3Execute(Sender: TObject;
-      Parameters: TFunctionParams; var ReturnValue: variant;
-      ZendVar: TZendVariable; TSRMLS_DC: Pointer);
-    procedure _TTreeFunctions8Execute(Sender: TObject;
       Parameters: TFunctionParams; var ReturnValue: variant;
       ZendVar: TZendVariable; TSRMLS_DC: Pointer);
     procedure guiFunctions14Execute(Sender: TObject;
@@ -6491,10 +6491,20 @@ procedure TphpMOD._TTreeFunctions8Execute(Sender: TObject;
   Parameters: TFunctionParams; var ReturnValue: variant; ZendVar: TZendVariable;
   TSRMLS_DC: Pointer);
 var
-  t: TTreeView;
+  Expanded: boolean;
+  Recurs: boolean;
 begin
-  t := TTreeView(ToObj(Parameters, 0));
-  ZendVar.AsInteger := integer(t.Items);
+  Expanded := Parameters[1].Value;
+  Recurs := Parameters[2].Value;
+  if Expanded = True then
+  begin
+    TTreeNode(ToObj(Parameters, 0)).Expand(Recurs);
+  end
+  else
+  begin
+    TTreeNode(ToObj(Parameters, 0)).Collapse(Recurs);
+  end;
+
 end;
 
 procedure TphpMOD.OSApiFunctions26Execute(Sender: TObject;

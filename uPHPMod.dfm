@@ -4083,6 +4083,24 @@ object phpMOD: TphpMOD
             ParamType = tpUnknown
           end>
         OnExecute = _TTreeFunctions7Execute
+      end
+      item
+        FunctionName = 'tree_expand'
+        Tag = 0
+        Parameters = <
+          item
+            Name = 'P1'
+            ParamType = tpUnknown
+          end
+          item
+            Name = 'P2'
+            ParamType = tpUnknown
+          end
+		  item
+            Name = 'P3'
+            ParamType = tpUnknown
+          end>
+        OnExecute = _TTreeFunctions8Execute
       end>
     Left = 168
     Top = 320
